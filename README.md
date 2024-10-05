@@ -8,8 +8,10 @@ Stable tag: 1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
+Track how much time users spend on your website with customizable display options.
+
 == Description ==
-Track how much time users spend on your website with customizable display options. Use the [time_spent] shortcode to display the tracker on your posts or pages.
+Time Spent Tracker allows you to track how much time users spend on your website. It provides a customizable display of the total time with language options. Use the [time_spent] shortcode to display the tracker on your posts or pages.
 
 == Installation ==
 1. Upload the `time-spent-tracker` folder to the `/wp-content/plugins/` directory.
