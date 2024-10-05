@@ -9,7 +9,6 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 == Description ==
 This plugin tracks the total time spent by users on the site.
-Use the [time_spent] shortcode to display the tracker on your posts or pages.
 
 == Installation ==
 1. Upload the `time-spent-tracker` folder to the `/wp-content/plugins/` directory.
