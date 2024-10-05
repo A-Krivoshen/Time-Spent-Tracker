@@ -9,17 +9,6 @@ Author URI: https://krivoshein.site
 Text Domain: time-spent-tracker
 */
 
-<?php
-/*
-Plugin Name: Time Spent Tracker
-Plugin URI: https://yourwebsite.com
-Description: Tracks the total time spent by users on the site, with shortcode output and color customization.
-Version: 1.0
-Author: Aleksey Krivoshein
-Author URI: https://krivoshein.site
-Text Domain: time-spent-tracker
-*/
-
 // Load text domain for translations
 function time_spent_tracker_load_textdomain() {
     load_plugin_textdomain('time-spent-tracker', false, dirname(plugin_basename(__FILE__)) . '/languages/');
