@@ -1,5 +1,5 @@
 === Time Spent Tracker ===
-Contributors: yourusername
+Contributors: Alekseyweb
 Tags: time tracking, user engagement, analytics
 Requires at least: 5.0
 Tested up to: 6.6
@@ -9,10 +9,7 @@ License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 == Description ==
-Time Spent Tracker allows you to track how much time users spend on your website. It provides a customizable display of the total time with language options. Use the [time_spent] shortcode to display the tracker on your posts or pages.
-
-== Short Description ==
-Track how much time users spend on your website with customizable display options.
+Track how much time users spend on your website with customizable display options. Use the [time_spent] shortcode to display the tracker on your posts or pages.
 
 == Installation ==
 1. Upload the `time-spent-tracker` folder to the `/wp-content/plugins/` directory.
