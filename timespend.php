@@ -6,7 +6,7 @@ Description: Tracks the total time spent by users on the site, with shortcode ou
 Version: 1.0
 Author: Aleksey Krivoshein
 Author URI: https://krivoshein.site
-Text Domain: timespend
+Text Domain: time-spent-tracker
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 */
