@@ -1,9 +1,14 @@
 document.addEventListener('DOMContentLoaded', function() {
-    let startTime = Date.now();
+    const startTime = Date.now();
     let totalTimeSpent = 0;
 
     const translations = TimeSpentTracker.translations;
     const settings = TimeSpentTracker.settings;
+    const timeSpentElement = document.getElementById('timeSpent');
+
+    if (!timeSpentElement) {
+        return;
+    }
 
     if (localStorage.getItem('totalTimeSpent')) {
         totalTimeSpent = parseInt(localStorage.getItem('totalTimeSpent'), 10);
@@ -27,18 +32,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const currentTime = Math.floor((Date.now() - startTime) / 1000);
         const totalTime = totalTimeSpent + currentTime;
 
-        window.addEventListener('beforeunload', function() {
-            localStorage.setItem('totalTimeSpent', totalTime);
-        });
-
-        const timeSpentElement = document.getElementById('timeSpent');
-        if (timeSpentElement) {
-            timeSpentElement.textContent = translations.initialMessage + formatTime(totalTime);
-            timeSpentElement.style.color = settings.textColor;
-            timeSpentElement.style.backgroundColor = settings.backgroundColor;
-            timeSpentElement.style.border = `2px solid ${settings.borderColor}`;
-        }
+        timeSpentElement.textContent = translations.initialMessage + formatTime(totalTime);
+        localStorage.setItem('totalTimeSpent', String(totalTime));
     }
 
+    timeSpentElement.style.color = settings.textColor;
+    timeSpentElement.style.backgroundColor = settings.backgroundColor;
+    timeSpentElement.style.border = `2px solid ${settings.borderColor}`;
+
+    updateTimeSpent();
     setInterval(updateTimeSpent, 1000);
 });
