@@ -3,7 +3,7 @@
 Plugin Name: Time Spent Tracker
 Plugin URI: https://github.com/A-Krivoshen/Time-Spent-Tracker
 Description: Tracks the total time spent by users on the site, with shortcode output and color customization. Use the [time_spent] shortcode to display the tracker on your posts or pages.
-Version: 1.1
+Version: 1.2
 Author: Aleksey Krivoshein
 Author URI: https://krivoshein.site
 Text Domain: time-spent-tracker
@@ -17,32 +17,110 @@ function time_spent_tracker_load_textdomain() {
 }
 add_action('plugins_loaded', 'time_spent_tracker_load_textdomain');
 
+/**
+ * Return default plugin settings.
+ *
+ * @return array<string, string>
+ */
+function time_spent_tracker_get_default_settings() {
+    return [
+        'text_color' => '#4758D0',
+        'background_color' => 'white',
+        'border_color' => '#4758D0',
+        'language' => 'en',
+    ];
+}
+
+/**
+ * Validate a color value.
+ *
+ * @param string $color Raw color value.
+ * @return string
+ */
+function time_spent_tracker_sanitize_color($color, $default = '#4758D0') {
+    $color = trim((string) $color);
+    $hex_color = sanitize_hex_color($color);
+
+    if (!empty($hex_color)) {
+        return $hex_color;
+    }
+
+    if (preg_match('/^[a-zA-Z]+$/', $color)) {
+        return sanitize_text_field($color);
+    }
+
+    return $default;
+}
+
+/**
+ * Sanitize selected language.
+ *
+ * @param string $language Raw language code.
+ * @return string
+ */
+function time_spent_tracker_sanitize_language($language) {
+    $allowed_languages = ['en', 'ru'];
+    $language = sanitize_text_field((string) $language);
+
+    return in_array($language, $allowed_languages, true) ? $language : time_spent_tracker_get_default_settings()['language'];
+}
+
+/**
+ * Return translated labels based on selected plugin language.
+ *
+ * @return array<string, string>
+ */
+function time_spent_tracker_get_translations() {
+    $selected_language = get_option('time_spent_language', time_spent_tracker_get_default_settings()['language']);
+
+    $labels = [
+        'initialMessage' => [
+            'en' => __('You have spent on the site: ', 'time-spent-tracker'),
+            'ru' => __('Вы провели на сайте: ', 'time-spent-tracker'),
+        ],
+        'days' => [
+            'en' => __(' days ', 'time-spent-tracker'),
+            'ru' => __(' дн ', 'time-spent-tracker'),
+        ],
+        'hours' => [
+            'en' => __(' hours ', 'time-spent-tracker'),
+            'ru' => __(' ч ', 'time-spent-tracker'),
+        ],
+        'minutes' => [
+            'en' => __(' minutes ', 'time-spent-tracker'),
+            'ru' => __(' мин ', 'time-spent-tracker'),
+        ],
+        'seconds' => [
+            'en' => __(' seconds ', 'time-spent-tracker'),
+            'ru' => __(' сек', 'time-spent-tracker'),
+        ],
+    ];
+
+    $result = [];
+    foreach ($labels as $key => $values) {
+        $result[$key] = $values[$selected_language] ?? $values['en'];
+    }
+
+    return $result;
+}
+
 // Enqueue scripts and styles
 function time_spent_tracker_enqueue_assets() {
-    wp_enqueue_script('time-spent-tracker-js', plugins_url('js/time-spent-tracker.js', __FILE__), [], '1.0', true);
-    wp_enqueue_style('time-spent-tracker-css', plugins_url('css/time-spent-tracker.css', __FILE__), [], '1.0');
+    if (is_admin()) {
+        return;
+    }
+
+    $defaults = time_spent_tracker_get_default_settings();
+
+    wp_enqueue_script('time-spent-tracker-js', plugins_url('js/time-spent-tracker.js', __FILE__), [], '1.2', true);
+    wp_enqueue_style('time-spent-tracker-css', plugins_url('css/time-spent-tracker.css', __FILE__), [], '1.2');
 
     wp_localize_script('time-spent-tracker-js', 'TimeSpentTracker', [
-        'translations' => [
-            'en' => [
-                'initialMessage' => __('You have spent on the site: ', 'time-spent-tracker'),
-                'days' => __(' days ', 'time-spent-tracker'),
-                'hours' => __(' hours ', 'time-spent-tracker'),
-                'minutes' => __(' minutes ', 'time-spent-tracker'),
-                'seconds' => __(' seconds ', 'time-spent-tracker'),
-            ],
-            'ru' => [
-                'initialMessage' => __('Вы провели на сайте: ', 'time-spent-tracker'),
-                'days' => __(' дн ', 'time-spent-tracker'),
-                'hours' => __(' ч ', 'time-spent-tracker'),
-                'minutes' => __(' мин ', 'time-spent-tracker'),
-                'seconds' => __(' сек', 'time-spent-tracker'),
-            ],
-        ],
+        'translations' => time_spent_tracker_get_translations(),
         'settings' => [
-            'textColor' => esc_attr(get_option('time_spent_text_color', '#4758D0')),
-            'backgroundColor' => esc_attr(get_option('time_spent_background_color', 'white')),
-            'borderColor' => esc_attr(get_option('time_spent_border_color', '#4758D0')),
+            'textColor' => esc_attr(get_option('time_spent_text_color', $defaults['text_color'])),
+            'backgroundColor' => esc_attr(get_option('time_spent_background_color', $defaults['background_color'])),
+            'borderColor' => esc_attr(get_option('time_spent_border_color', $defaults['border_color'])),
         ],
     ]);
 }
@@ -56,15 +134,22 @@ add_shortcode('time_spent', 'time_spent_tracker_display_time');
 
 // Register settings
 function time_spent_tracker_register_settings() {
-    add_option('time_spent_text_color', '#4758D0');
-    add_option('time_spent_background_color', 'white');
-    add_option('time_spent_border_color', '#4758D0');
-    add_option('time_spent_language', 'en');
+    $defaults = time_spent_tracker_get_default_settings();
+    add_option('time_spent_text_color', $defaults['text_color']);
+    add_option('time_spent_background_color', $defaults['background_color']);
+    add_option('time_spent_border_color', $defaults['border_color']);
+    add_option('time_spent_language', $defaults['language']);
 
-    register_setting('time_spent_tracker_options_group', 'time_spent_text_color');
-    register_setting('time_spent_tracker_options_group', 'time_spent_background_color');
-    register_setting('time_spent_tracker_options_group', 'time_spent_border_color');
-    register_setting('time_spent_tracker_options_group', 'time_spent_language');
+    register_setting('time_spent_tracker_options_group', 'time_spent_text_color', ['sanitize_callback' => static function ($value) use ($defaults) {
+        return time_spent_tracker_sanitize_color($value, $defaults['text_color']);
+    }]);
+    register_setting('time_spent_tracker_options_group', 'time_spent_background_color', ['sanitize_callback' => static function ($value) use ($defaults) {
+        return time_spent_tracker_sanitize_color($value, $defaults['background_color']);
+    }]);
+    register_setting('time_spent_tracker_options_group', 'time_spent_border_color', ['sanitize_callback' => static function ($value) use ($defaults) {
+        return time_spent_tracker_sanitize_color($value, $defaults['border_color']);
+    }]);
+    register_setting('time_spent_tracker_options_group', 'time_spent_language', ['sanitize_callback' => 'time_spent_tracker_sanitize_language']);
 }
 add_action('admin_init', 'time_spent_tracker_register_settings');
 
